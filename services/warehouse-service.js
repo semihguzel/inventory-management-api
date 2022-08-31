@@ -1,5 +1,6 @@
 const HttpError = require("../utils/HttpError");
 
+const Warehouse = require("../models/warehouse");
 const WarehouseHelper = require("../helpers/warehouse-helper");
 
 const updateWarehouse = async (warehouseEntity) => {
@@ -35,6 +36,24 @@ const deleteWarehouse = async (warehouseId) => {
   }
 };
 
+const createWarehouse = async (warehouseObj) => {
+  const createdWarehouse = new Warehouse({
+    name: warehouseObj.name,
+    location: warehouseObj.location,
+  });
+
+  try {
+    await createdWarehouse.save();
+  } catch (err) {
+    throw new HttpError(
+      "There has been an error when creating data, please try again",
+      500
+    );
+  }
+
+  return createdWarehouse.id;
+};
+
 const validateBeforeCreate = async (warehouseObj, errors) => {
   if (!errors.isEmpty() || !WarehouseHelper.inputsAreValid(warehouseObj))
     throw new HttpError("Invalid inputs passed, please check your data.", 422);
@@ -56,3 +75,4 @@ const validateBeforeCreate = async (warehouseObj, errors) => {
 exports.validateBeforeCreate = validateBeforeCreate;
 exports.updateWarehouse = updateWarehouse;
 exports.deleteWarehouse = deleteWarehouse;
+exports.createWarehouse = createWarehouse;

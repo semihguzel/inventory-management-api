@@ -2,41 +2,33 @@ const { validationResult } = require("express-validator");
 
 const HttpError = require("../utils/HttpError");
 
-const Warehouse = require("../models/warehouse");
-
 const WarehouseService = require("../services/warehouse-service");
 
-const createWarehouse = async (req, res, next) => {
+const createWarehouseAction = async (req, res, next) => {
+  let createdWarehouseId;
+
   const errors = validationResult(req);
 
   const { name, location } = req.body;
 
+  const reqObject = { name, location };
+
   try {
-    await WarehouseService.validateBeforeCreate({ name, location }, errors);
+    await WarehouseService.validateBeforeCreate(reqObject, errors);
   } catch (err) {
     return next(err);
   }
 
-  const createdWarehouse = new Warehouse({
-    name,
-    location,
-  });
-
   try {
-    await createdWarehouse.save();
+    createdWarehouseId = await WarehouseService.createWarehouse(reqObject);
   } catch (err) {
-    return next(
-      new HttpError(
-        "There has been an error when creating data, please try again",
-        500
-      )
-    );
+    return next(err);
   }
 
-  res.status(201).json({ warehouseId: createdWarehouse.id });
+  res.status(201).json({ warehouseId: createdWarehouseId });
 };
 
-const updateWarehouse = async (req, res, next) => {
+const updateWarehouseAction = async (req, res, next) => {
   const errors = validationResult(req);
 
   const id = req.params.wid;
@@ -57,7 +49,7 @@ const updateWarehouse = async (req, res, next) => {
   res.status(200).json({ warehouse: warehouse.toObject({ getters: true }) });
 };
 
-const deleteWarehouse = async (req, res, next) => {
+const deleteWarehouseAction = async (req, res, next) => {
   const id = req.params.wid;
 
   if (!id)
@@ -71,6 +63,6 @@ const deleteWarehouse = async (req, res, next) => {
   res.status(200).json({ message: "Warehouse deleted." });
 };
 
-exports.createWarehouse = createWarehouse;
-exports.updateWarehouse = updateWarehouse;
-exports.deleteWarehouse = deleteWarehouse;
+exports.createWarehouseAction = createWarehouseAction;
+exports.updateWarehouseAction = updateWarehouseAction;
+exports.deleteWarehouseAction = deleteWarehouseAction;
