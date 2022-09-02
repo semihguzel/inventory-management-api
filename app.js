@@ -6,6 +6,7 @@ const connectToMongoDb = require("./middleware/database");
 
 const productRouter = require("./routes/product-routes");
 const warehouseRouter = require("./routes/warehouse-routes");
+const userRouter = require("./routes/user-routes");
 
 const HttpError = require("./utils/HttpError");
 
@@ -25,6 +26,7 @@ app.use((req, res, next) => {
 
 app.use("/api/products", productRouter);
 app.use("/api/warehouses", warehouseRouter);
+app.use("/api/users", userRouter);
 
 app.use((req, res, next) => {
   const error = new HttpError("Could not find this route.", 404);
