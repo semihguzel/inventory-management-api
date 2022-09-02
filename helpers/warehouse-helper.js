@@ -1,4 +1,6 @@
 const Warehouse = require("../models/warehouse");
+const WarehouseService = require("../services/warehouse-service");
+
 const HttpError = require("../utils/HttpError");
 
 const validateAndFind = async (warehouseObj) => {
@@ -57,7 +59,20 @@ const findWarehouseById = async (id) => {
   }
 };
 
+const getWarehouseById = async (id) => {
+  let warehouse;
+
+  try {
+    warehouse = await WarehouseService.getById(id);
+  } catch (err) {
+    throw err;
+  }
+
+  return warehouse;
+};
+
 exports.validateAndFind = validateAndFind;
 exports.inputsAreValid = inputsAreValid;
 exports.doesWarehouseExistsForCreate = doesWarehouseExistsForCreate;
 exports.findWarehouseById = findWarehouseById;
+exports.getWarehouseById = getWarehouseById;

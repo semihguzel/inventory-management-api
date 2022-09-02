@@ -1,11 +1,68 @@
-const temp = async (req, res, next) => {
-  res.status(200).json({ message: "deneme 123" });
+const { validationResult } = require("express-validator");
+const ProductHelper = require("../helpers/product-helper");
+const HttpError = require("../utils/HttpError");
+
+const createProductAction = async (req, res, next) => {
+  let createdProduct;
+
+  const errors = validationResult(req);
+
+  const { name, description, image, warehouseId } = req.body;
+
+  const productObj = { name, description, image, warehouseId };
+
+  try {
+    ProductHelper.checkValidation(productObj, errors);
+    await ProductHelper.checkIfExistsBeforeCreate(productObj);
+
+    createdProduct = await ProductHelper.createProduct(productObj);
+  } catch (err) {
+    return next(err);
+  }
+
+  res.status(202).json({ product: createdProduct.toObject({ getters: true }) });
 };
 
-const createProduct = async (req, res, next) => {};
+const updateProductAction = async (req, res, next) => {
+  let updatedProduct;
 
-const isProductValid = () => {};
+  const errors = validationResult(req);
 
-const doesProductExists = () => {};
+  const { name, description, image, warehouseId } = req.body;
 
-exports.temp = temp;
+  const productObj = { name, description, image, warehouseId };
+
+  const productId = req.params.pid;
+
+  try {
+    ProductHelper.checkValidation(productObj, errors);
+    ProductHelper.checkIfExists(productObj);
+
+    updatedProduct = await ProductHelper.updateProduct(productId, productObj);
+  } catch (err) {
+    return next(err);
+  }
+
+  res.status(200).json({ product: updatedProduct.toObject({ getters: true }) });
+};
+
+const deleteProductAction = async (req, res, next) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty())
+    throw new HttpError("Invalid inputs passed, please check your data.", 422);
+
+  const productId = req.params.pid;
+
+  try {
+    await ProductHelper.deleteProduct(productId);
+  } catch (err) {
+    return next(err);
+  }
+
+  res.status(200).json({ message: "Product has been deleted." });
+};
+
+exports.createProductAction = createProductAction;
+exports.updateProductAction = updateProductAction;
+exports.deleteProductAction = deleteProductAction;

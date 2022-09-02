@@ -40,6 +40,7 @@ const createWarehouse = async (warehouseObj) => {
   const createdWarehouse = new Warehouse({
     name: warehouseObj.name,
     location: warehouseObj.location,
+    products: [],
   });
 
   try {
@@ -72,7 +73,27 @@ const validateBeforeCreate = async (warehouseObj, errors) => {
   }
 };
 
+const getById = async (id) => {
+  try {
+    const warehouse = await Warehouse.findById(id);
+
+    if (!warehouse)
+      throw new HttpError(
+        "Couldn't find the warehouse with given id, please check sent data",
+        422
+      );
+
+    return warehouse;
+  } catch (err) {
+    throw new HttpError(
+      "There has been an error when finding data, please check sent id or try again",
+      500
+    );
+  }
+};
+
 exports.validateBeforeCreate = validateBeforeCreate;
 exports.updateWarehouse = updateWarehouse;
 exports.deleteWarehouse = deleteWarehouse;
 exports.createWarehouse = createWarehouse;
+exports.getById = getById;
