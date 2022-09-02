@@ -1,0 +1,6 @@
+{
+  "env": {
+    "PASSWORD_SALT_LENGTH": 12,
+    "JWT_SALT": "JwT_SecReT_SalT_3565163"
+  }
+}
