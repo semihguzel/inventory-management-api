@@ -1,92 +1,118 @@
 const Product = require("../models/product");
-
+const ProductRepository = require("../repository/product-repository");
+const WarehouseHelper = require("../helpers/warehouse-helper");
 const HttpError = require("../utils/HttpError");
 
-const { default: mongoose } = require("mongoose");
-
-const doesProductExists = async (productObj) => {
+const checkIfExistsBeforeCreate = async (productObj) => {
   try {
-    return await Product.exists(productObj);
+    const doesExists = await ProductRepository.doesProductExists(productObj);
+
+    if (doesExists) throw new HttpError("Data already exists.", 422);
   } catch (err) {
-    return new HttpError(
-      "There has been an error when creating data, please try again.",
-      500
-    );
+    throw err;
+  }
+};
+
+const checkIfExists = async (productObj) => {
+  try {
+    const doesExists = await ProductRepository.doesProductExists(productObj);
+
+    if (!doesExists)
+      throw new HttpError(
+        "Couldn't find product with given data, please check your data and try again.",
+        422
+      );
+  } catch (err) {
+    throw err;
   }
 };
 
 const getById = async (productId) => {
   try {
-    const product = Product.findById(productId);
+    const product = await ProductRepository.getById(productId);
+
+    if (!product)
+      throw new HttpError(
+        "Couldn't find product with given data, please check your data and try again.",
+        422
+      );
 
     return product;
   } catch (err) {
-    throw new HttpError(
-      "Couldn't find product with given data, please check your data and try again.",
-      422
-    );
+    throw err;
   }
 };
 
-const createProduct = async (product, warehouse) => {
+const createProduct = async (productObj) => {
+  let createdProduct;
+
+  const warehouse = await WarehouseHelper.getWarehouseById(
+    productObj.warehouseId
+  );
+
+  const product = new Product({
+    name: productObj.name,
+    description: productObj.description,
+    image: productObj.image,
+    warehouse: productObj.warehouseId,
+  });
+
   try {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    await product.save({ session });
-    warehouse.products.push(product);
-    await warehouse.save({ session });
-    await session.commitTransaction();
+    createdProduct = await ProductRepository.createProduct(product, warehouse);
   } catch (err) {
     console.log(err);
-    throw new HttpError(
-      "There has been an error when creating data, please try again",
-      500
-    );
+    throw err;
   }
 
-  return product;
+  return createdProduct;
 };
 
-const updateProduct = async (productId, product, warehouse, oldWarehouse) => {
+const updateProduct = async (productId, productObj) => {
+  let updatedProduct;
+
+  const warehouse = await WarehouseHelper.getWarehouseById(
+    productObj.warehouseId
+  );
+  const product = await getById(productId);
+
+  const oldWarehouse = await WarehouseHelper.getWarehouseById(
+    product.warehouse
+  );
+
+  product.name = productObj.name;
+  product.description = productObj.description;
+  product.image = productObj.image;
+  product.warehouse = productObj.warehouseId;
+
   try {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    await product.save({ session });
-    oldWarehouse.products.pull(productId);
-    warehouse.products.push(product);
-    await warehouse.save({ session });
-    await oldWarehouse.save({ session });
-    await session.commitTransaction();
+    updatedProduct = await ProductRepository.updateProduct(
+      productId,
+      product,
+      warehouse,
+      oldWarehouse
+    );
   } catch (err) {
     console.log(err);
-    throw new HttpError(
-      "There has been an error when updating data, please try again",
-      500
-    );
+    throw err;
   }
 
-  return product;
+  return updatedProduct;
 };
 
-const deleteProduct = async (productId, product, warehouse) => {
+const deleteProduct = async (productId) => {
+  const product = await getById(productId);
+  const warehouse = await WarehouseHelper.getWarehouseById(product.warehouse);
+
   try {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    await product.remove({ session });
-    warehouse.products.pull(productId);
-    await warehouse.save();
-    await session.commitTransaction();
+    await ProductRepository.deleteProduct(productId, product, warehouse);
   } catch (err) {
-    console.log(err);
-    throw new HttpError(
-      "There has been an error when deleting data, please try again",
-      500
-    );
+    throw err;
   }
 };
 
-exports.doesProductExists = doesProductExists;
-exports.createProduct = createProduct;
+exports.checkIfExistsBeforeCreate = checkIfExistsBeforeCreate;
+exports.checkIfExists = checkIfExists;
 exports.getById = getById;
+exports.createProduct = createProduct;
 exports.updateProduct = updateProduct;
 exports.deleteProduct = deleteProduct;

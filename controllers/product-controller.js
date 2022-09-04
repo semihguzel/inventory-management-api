@@ -1,4 +1,5 @@
 const { validationResult } = require("express-validator");
+const ProductService = require("../services/product-service");
 const ProductHelper = require("../helpers/product-helper");
 const HttpError = require("../utils/HttpError");
 
@@ -13,9 +14,9 @@ const createProductAction = async (req, res, next) => {
 
   try {
     ProductHelper.checkValidation(productObj, errors);
-    await ProductHelper.checkIfExistsBeforeCreate(productObj);
+    await ProductService.checkIfExistsBeforeCreate(productObj);
 
-    createdProduct = await ProductHelper.createProduct(productObj);
+    createdProduct = await ProductService.createProduct(productObj);
   } catch (err) {
     return next(err);
   }
@@ -36,9 +37,9 @@ const updateProductAction = async (req, res, next) => {
 
   try {
     ProductHelper.checkValidation(productObj, errors);
-    ProductHelper.checkIfExists(productObj);
+    ProductService.checkIfExists(productObj);
 
-    updatedProduct = await ProductHelper.updateProduct(productId, productObj);
+    updatedProduct = await ProductService.updateProduct(productId, productObj);
   } catch (err) {
     return next(err);
   }
@@ -55,7 +56,7 @@ const deleteProductAction = async (req, res, next) => {
   const productId = req.params.pid;
 
   try {
-    await ProductHelper.deleteProduct(productId);
+    await ProductService.deleteProduct(productId);
   } catch (err) {
     return next(err);
   }
