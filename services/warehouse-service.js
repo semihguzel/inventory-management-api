@@ -1,18 +1,41 @@
 const HttpError = require("../utils/HttpError");
 
 const Warehouse = require("../models/warehouse");
+const WarehouseRepository = require("../repository/warehouse-repository");
 const WarehouseHelper = require("../helpers/warehouse-helper");
 
-const updateWarehouse = async (warehouseEntity) => {
+const createWarehouse = async (warehouseObj) => {
+  let createdWarehouse;
+
+  const warehouse = new Warehouse({
+    name: warehouseObj.name,
+    location: warehouseObj.location,
+    products: [],
+  });
+
   try {
-    const warehouse = await WarehouseHelper.validateAndFind(warehouseEntity);
+    createdWarehouse = await WarehouseRepository.createWarehouse(warehouse);
+  } catch (err) {
+    throw new HttpError(
+      "There has been an error when creating data, please try again",
+      500
+    );
+  }
+
+  return createdWarehouse;
+};
+
+const updateWarehouse = async (warehouseId, warehouseEntity) => {
+  let updatedWarehouse;
+  try {
+    const warehouse = await WarehouseRepository.getById(warehouseId);
 
     warehouse.name = warehouseEntity.name;
     warehouse.location = warehouseEntity.location;
 
-    await warehouse.save();
+    updatedWarehouse = await WarehouseRepository.updateWarehouse(warehouse);
 
-    return warehouse;
+    return updatedWarehouse;
   } catch (err) {
     throw new HttpError(
       "There has been an error when updating data, please try again",
@@ -23,9 +46,9 @@ const updateWarehouse = async (warehouseEntity) => {
 
 const deleteWarehouse = async (warehouseId) => {
   try {
-    const warehouse = await WarehouseHelper.findWarehouseById(warehouseId);
+    const warehouse = await WarehouseRepository.getById(warehouseId);
 
-    warehouse.delete();
+    await WarehouseRepository.deleteWarehouse(warehouse);
   } catch (err) {
     if (err.code) throw err;
 
@@ -36,32 +59,13 @@ const deleteWarehouse = async (warehouseId) => {
   }
 };
 
-const createWarehouse = async (warehouseObj) => {
-  const createdWarehouse = new Warehouse({
-    name: warehouseObj.name,
-    location: warehouseObj.location,
-    products: [],
-  });
-
-  try {
-    await createdWarehouse.save();
-  } catch (err) {
-    throw new HttpError(
-      "There has been an error when creating data, please try again",
-      500
-    );
-  }
-
-  return createdWarehouse.id;
-};
-
 const validateBeforeCreate = async (warehouseObj, errors) => {
   if (!errors.isEmpty() || !WarehouseHelper.inputsAreValid(warehouseObj))
     throw new HttpError("Invalid inputs passed, please check your data.", 422);
 
   let doesItemExists;
   try {
-    doesItemExists = await WarehouseHelper.doesWarehouseExistsForCreate(
+    doesItemExists = await WarehouseRepository.doesWarehouseExistsForCreate(
       warehouseObj
     );
   } catch (err) {
@@ -73,27 +77,7 @@ const validateBeforeCreate = async (warehouseObj, errors) => {
   }
 };
 
-const getById = async (id) => {
-  try {
-    const warehouse = await Warehouse.findById(id);
-
-    if (!warehouse)
-      throw new HttpError(
-        "Couldn't find the warehouse with given id, please check sent data",
-        422
-      );
-
-    return warehouse;
-  } catch (err) {
-    throw new HttpError(
-      "There has been an error when finding data, please check sent id or try again",
-      500
-    );
-  }
-};
-
 exports.validateBeforeCreate = validateBeforeCreate;
 exports.updateWarehouse = updateWarehouse;
 exports.deleteWarehouse = deleteWarehouse;
 exports.createWarehouse = createWarehouse;
-exports.getById = getById;

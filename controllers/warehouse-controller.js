@@ -3,29 +3,28 @@ const { validationResult } = require("express-validator");
 const HttpError = require("../utils/HttpError");
 
 const WarehouseService = require("../services/warehouse-service");
+const WarehouseHelper = require("../helpers/warehouse-helper");
 
 const createWarehouseAction = async (req, res, next) => {
-  let createdWarehouseId;
+  let createdWarehouse;
 
   const errors = validationResult(req);
 
   const { name, location } = req.body;
 
-  const reqObject = { name, location };
+  const warehouseObj = { name, location };
 
   try {
-    await WarehouseService.validateBeforeCreate(reqObject, errors);
+    WarehouseHelper.checkValidation(warehouseObj, errors);
+    await WarehouseService.validateBeforeCreate(warehouseObj, errors);
+
+    createdWarehouse = await WarehouseService.createWarehouse(warehouseObj);
   } catch (err) {
     return next(err);
   }
-
-  try {
-    createdWarehouseId = await WarehouseService.createWarehouse(reqObject);
-  } catch (err) {
-    return next(err);
-  }
-
-  res.status(201).json({ warehouseId: createdWarehouseId });
+  res
+    .status(201)
+    .json({ product: createdWarehouse.toObject({ getters: true }) });
 };
 
 const updateWarehouseAction = async (req, res, next) => {
@@ -33,15 +32,15 @@ const updateWarehouseAction = async (req, res, next) => {
 
   const id = req.params.wid;
 
-  if (!errors.isEmpty() || !id)
-    throw new HttpError("Invalid inputs passed, please check your data.", 422);
-
   const { name, location } = req.body;
+
+  const warehouseObj = { name, location };
 
   let warehouse;
 
   try {
-    warehouse = await WarehouseService.updateWarehouse({ id, name, location });
+    WarehouseHelper.checkValidation(warehouseObj, errors);
+    warehouse = await WarehouseService.updateWarehouse(id, warehouseObj);
   } catch (err) {
     return next(err);
   }
