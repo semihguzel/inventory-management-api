@@ -77,7 +77,16 @@ const validateBeforeCreate = async (warehouseObj, errors) => {
   }
 };
 
+const getAll = async (selectColumnsObj = null) => {
+  try {
+    return await WarehouseRepository.getAll(selectColumnsObj);
+  } catch (err) {
+    throw err;
+  }
+};
+
 exports.validateBeforeCreate = validateBeforeCreate;
 exports.updateWarehouse = updateWarehouse;
 exports.deleteWarehouse = deleteWarehouse;
 exports.createWarehouse = createWarehouse;
+exports.getAll = getAll;

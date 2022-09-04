@@ -62,6 +62,22 @@ const deleteWarehouseAction = async (req, res, next) => {
   res.status(200).json({ message: "Warehouse deleted." });
 };
 
+const getAllAction = async (req, res, next) => {
+  let warehouseList;
+  try {
+    warehouseList = await WarehouseService.getAll({
+      _id: 1,
+      name: 1,
+      location: 1,
+    });
+  } catch (err) {
+    return next(err);
+  }
+
+  res.status(200).json({ items: warehouseList });
+};
+
 exports.createWarehouseAction = createWarehouseAction;
 exports.updateWarehouseAction = updateWarehouseAction;
 exports.deleteWarehouseAction = deleteWarehouseAction;
+exports.getAllAction = getAllAction;

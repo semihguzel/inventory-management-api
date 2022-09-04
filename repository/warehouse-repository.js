@@ -1,4 +1,5 @@
 const Warehouse = require("../models/warehouse");
+const HttpError = require("../utils/HttpError");
 
 const getById = async (id) => {
   try {
@@ -69,8 +70,21 @@ const createWarehouse = async (warehouse) => {
   return warehouse;
 };
 
+const getAll = async (selectColumnsObj = null) => {
+  try {
+    const warehouseList = selectColumnsObj
+      ? await Warehouse.find({}).select(selectColumnsObj)
+      : await Warehouse.find({});
+    return warehouseList;
+  } catch (err) {
+    console.log(err);
+    throw new HttpError("Couldn't get warehouses, please try again", 500);
+  }
+};
+
 exports.doesWarehouseExistsForCreate = doesWarehouseExistsForCreate;
 exports.getById = getById;
 exports.updateWarehouse = updateWarehouse;
 exports.deleteWarehouse = deleteWarehouse;
 exports.createWarehouse = createWarehouse;
+exports.getAll = getAll;

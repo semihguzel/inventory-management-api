@@ -5,6 +5,8 @@ const warehouseController = require("../controllers/warehouse-controller");
 
 const router = express.Router();
 
+router.get("/", warehouseController.getAllAction);
+
 router.use(checkAuth);
 
 router.post("/", warehouseController.createWarehouseAction);
