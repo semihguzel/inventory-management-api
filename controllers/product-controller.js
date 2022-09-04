@@ -1,7 +1,6 @@
 const { validationResult } = require("express-validator");
 const ProductService = require("../services/product-service");
 const ProductHelper = require("../helpers/product-helper");
-const HttpError = require("../utils/HttpError");
 
 const createProductAction = async (req, res, next) => {
   let createdProduct;
@@ -59,6 +58,23 @@ const deleteProductAction = async (req, res, next) => {
   res.status(200).json({ message: "Product has been deleted." });
 };
 
+const getAllProductsAction = async (req, res, next) => {
+  let productList;
+  try {
+    productList = await ProductService.getAllProducts({
+      name: 1,
+      description: 1,
+      image: 1,
+      warehouse: 1,
+    });
+  } catch (err) {
+    return next(err);
+  }
+
+  res.status(200).json({ items: productList });
+};
+
 exports.createProductAction = createProductAction;
 exports.updateProductAction = updateProductAction;
 exports.deleteProductAction = deleteProductAction;
+exports.getAllProductsAction = getAllProductsAction;

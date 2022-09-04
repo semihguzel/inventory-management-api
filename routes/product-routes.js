@@ -5,6 +5,7 @@ const productController = require("../controllers/product-controller");
 
 const router = express.Router();
 
+router.get("/", productController.getAllProductsAction);
 router.use(checkAuth);
 
 router.post("/", productController.createProductAction);

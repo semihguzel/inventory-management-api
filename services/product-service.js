@@ -110,9 +110,18 @@ const deleteProduct = async (productId) => {
   }
 };
 
-exports.checkIfExistsBeforeCreate = checkIfExistsBeforeCreate;
-exports.checkIfExists = checkIfExists;
-exports.getById = getById;
+const getAllProducts = async (selectColumnsObj = null) => {
+  try {
+    return await ProductRepository.getAllProducts(selectColumnsObj);
+  } catch (err) {
+    throw err;
+  }
+};
+
 exports.createProduct = createProduct;
 exports.updateProduct = updateProduct;
 exports.deleteProduct = deleteProduct;
+exports.checkIfExistsBeforeCreate = checkIfExistsBeforeCreate;
+exports.checkIfExists = checkIfExists;
+exports.getById = getById;
+exports.getAllProducts = getAllProducts;

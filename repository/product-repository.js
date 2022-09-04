@@ -85,8 +85,19 @@ const deleteProduct = async (productId, product, warehouse) => {
   }
 };
 
-exports.doesProductExists = doesProductExists;
+const getAllProducts = async (selectColumnsObj = null) => {
+  try {
+    return selectColumnsObj
+      ? await Product.find({}).select(selectColumnsObj)
+      : Product.find({});
+  } catch (err) {
+    throw new HttpError("Couldn't get products, please try again later", 500);
+  }
+};
+
 exports.createProduct = createProduct;
-exports.getById = getById;
 exports.updateProduct = updateProduct;
 exports.deleteProduct = deleteProduct;
+exports.doesProductExists = doesProductExists;
+exports.getById = getById;
+exports.getAllProducts = getAllProducts;
