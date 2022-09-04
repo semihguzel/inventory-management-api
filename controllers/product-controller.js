@@ -48,11 +48,6 @@ const updateProductAction = async (req, res, next) => {
 };
 
 const deleteProductAction = async (req, res, next) => {
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty())
-    throw new HttpError("Invalid inputs passed, please check your data.", 422);
-
   const productId = req.params.pid;
 
   try {
