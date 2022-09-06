@@ -88,7 +88,9 @@ const deleteProduct = async (productId, product, warehouse) => {
 const getAllProducts = async (selectColumnsObj = null) => {
   try {
     return selectColumnsObj
-      ? await Product.find({}).select(selectColumnsObj)
+      ? await Product.find({})
+          .populate("warehouse", "name -_id")
+          .select(selectColumnsObj)
       : Product.find({});
   } catch (err) {
     throw new HttpError("Couldn't get products, please try again later", 500);
