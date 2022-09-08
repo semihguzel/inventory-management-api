@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const connectToMongoDb = () => {
   try {
     return mongoose.connect(
-      "mongodb+srv://atlasAdmin:B9u2iBMEidyqbySy@cluster0.2xya0.mongodb.net/InventoryManagement?retryWrites=true&w=majority"
+      `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.2xya0.mongodb.net/InventoryManagement?retryWrites=true&w=majority`
     );
   } catch (err) {
     console.log(err.message);
