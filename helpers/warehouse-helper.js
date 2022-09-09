@@ -12,7 +12,7 @@ const inputsAreValid = (warehouseObj) => {
   return false;
 };
 
-const checkValidation = async (warehouseObj, errors) => {
+const checkValidation = (warehouseObj, errors) => {
   if (!errors.isEmpty() || !inputsAreValid(warehouseObj))
     throw new HttpError("Invalid inputs passed, please check your data.", 422);
 };
