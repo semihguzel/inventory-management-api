@@ -7,9 +7,9 @@ const createProductAction = async (req, res, next) => {
 
   const errors = validationResult(req);
 
-  const { name, description, image, warehouseId } = req.body;
+  const { name, description, warehouseId } = req.body;
 
-  const productObj = { name, description, image, warehouseId };
+  const productObj = { name, description, warehouseId };
 
   try {
     ProductHelper.checkValidation(productObj, errors);
@@ -28,15 +28,15 @@ const updateProductAction = async (req, res, next) => {
 
   const errors = validationResult(req);
 
-  const { name, description, image, warehouseId } = req.body;
+  const { name, description, warehouseId } = req.body;
 
-  const productObj = { name, description, image, warehouseId };
+  const productObj = { name, description, warehouseId };
 
   const productId = req.params.pid;
 
   try {
     ProductHelper.checkValidation(productObj, errors);
-    ProductService.checkIfExists(productObj);
+    await ProductService.getById(productId);
 
     updatedProduct = await ProductService.updateProduct(productId, productObj);
   } catch (err) {
@@ -64,7 +64,6 @@ const getAllProductsAction = async (req, res, next) => {
     productList = await ProductService.getAllProducts({
       name: 1,
       description: 1,
-      image: 1,
       warehouse: 1,
     });
   } catch (err) {

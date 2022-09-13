@@ -7,8 +7,6 @@ const validateCreateObject = (productObj) => {
     productObj.name.length > 0 &&
     productObj.description &&
     productObj.description.length > 0 &&
-    productObj.image &&
-    productObj.image.length > 0 &&
     productObj.warehouseId
   ) {
     return true;

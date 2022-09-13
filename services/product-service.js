@@ -1,6 +1,6 @@
 const Product = require("../models/product");
 const ProductRepository = require("../repository/product-repository");
-const WarehouseHelper = require("../helpers/warehouse-helper");
+const WarehouseRepository = require("../repository/warehouse-repository");
 const HttpError = require("../utils/HttpError");
 
 const checkIfExistsBeforeCreate = async (productObj) => {
@@ -46,14 +46,11 @@ const getById = async (productId) => {
 const createProduct = async (productObj) => {
   let createdProduct;
 
-  const warehouse = await WarehouseHelper.getWarehouseById(
-    productObj.warehouseId
-  );
+  const warehouse = await WarehouseRepository.getById(productObj.warehouseId);
 
   const product = new Product({
     name: productObj.name,
     description: productObj.description,
-    image: productObj.image,
     warehouse: productObj.warehouseId,
   });
 
@@ -70,18 +67,13 @@ const createProduct = async (productObj) => {
 const updateProduct = async (productId, productObj) => {
   let updatedProduct;
 
-  const warehouse = await WarehouseHelper.getWarehouseById(
-    productObj.warehouseId
-  );
+  const warehouse = await WarehouseRepository.getById(productObj.warehouseId);
   const product = await getById(productId);
 
-  const oldWarehouse = await WarehouseHelper.getWarehouseById(
-    product.warehouse
-  );
+  const oldWarehouse = await WarehouseRepository.getById(product.warehouse._id);
 
   product.name = productObj.name;
   product.description = productObj.description;
-  product.image = productObj.image;
   product.warehouse = productObj.warehouseId;
 
   try {
@@ -101,7 +93,7 @@ const updateProduct = async (productId, productObj) => {
 
 const deleteProduct = async (productId) => {
   const product = await getById(productId);
-  const warehouse = await WarehouseHelper.getWarehouseById(product.warehouse);
+  const warehouse = await WarehouseRepository.getById(product.warehouse._id);
 
   try {
     await ProductRepository.deleteProduct(productId, product, warehouse);
